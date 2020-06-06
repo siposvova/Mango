@@ -70,6 +70,9 @@ class AuthHandler < Kemal::Handler
     return call_next(env) if request_path_startswith env, ["/login", "/logout"]
 
     unless validate_cookie_token env
+      cookie = HTTP::Cookie.new "callback", env.request.path
+      cookie.path = Config.current.base_url
+      env.response.cookies << cookie
       return redirect env, "/login"
     end
 

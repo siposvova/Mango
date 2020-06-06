@@ -27,7 +27,15 @@ class MainRouter < Router
         token = @context.storage.verify_user(username, password).not_nil!
 
         set_token_cookie env, token
-        redirect env, "/"
+
+        cookie = env.request.cookies.find { |c| c.name == "callback" }
+        callback = "/"
+        unless cookie.nil?
+          callback = cookie.value
+          env.request.cookies.delete "callback"
+        end
+
+        redirect env, callback
       rescue
         redirect env, "/login"
       end
